@@ -99,6 +99,11 @@ class FormulaRule:
 
             for rule in rules:
 
+                rule = rule.strip()
+
+                if len(rule) is 0:
+                    continue
+
                 for key in formulaDict.keys():
                     rule = rule.replace(key, formulaDict[key])
 
