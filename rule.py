@@ -1,25 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# Utils
-import binascii
-import cStringIO
-import json
-import os
-import pprint
 import random
 import re
-import requests
-import stat
-import string
-import sys
-import subprocess
-import threading
-import time
-import traceback
 
-from datetime import tzinfo, timedelta, datetime
-from utils import getch, getMatchList
+from utils import getMatchList
 
 class FormulaRule:
 
@@ -35,23 +20,69 @@ class FormulaRule:
     '''
 
     def __init__(self, rulefile):
-        pass
+
+        self.init(rulefile)
 
     def __repr__(self):
         pass
 
+    def init(self, rulefile):
+
+        self.index = 0
+        self.rules = list()
+
+        try:
+
+            with open(rulefile, 'r') as fp:
+
+                for line in fp.readlines():
+
+                    if '#' == line[0]:
+                        continue
+
+                    line = line.strip()
+
+                    if 0 == len(line):
+                        continue
+
+                    self.rules.append(line)
+
+        except Exception as e:
+            pass
+
+    def reset(self):
+        self.index = 0
+
+    def forward(self):
+
+        if self.index + 1 < len(self.rules):
+            self.index += 1
+            return True
+
+        return False
+
+    def backward(self):
+
+        if self.index > 1:
+            self.index -= 1
+            return True
+
+        return False
+
+    def createFormula(self):
+
+        if self.index < len(self.rules):
+            return FormulaRule.getFormula(self.rules[self.index])
+
     @staticmethod
     def getFormula(rule):
-
-        def copy(content):
-            return content
 
         lines = rule.split(';')
 
         formula = lines[0]
         rules = lines[1:]
 
-        chars = getMatchList(r'[a-zA-Z]', formula, copy)
+        chars = getMatchList(r'[a-zA-Z]', formula)
         chars = sorted(set(chars))
 
         while True:
