@@ -53,6 +53,11 @@ class FormulaRule:
     def reset(self):
         self.index = 0
 
+    def set(self, index):
+
+        if index >= 0 and index < len(self.rules):
+            self.index = index
+
     def forward(self):
 
         if self.index + 1 < len(self.rules):

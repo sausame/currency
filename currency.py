@@ -19,6 +19,7 @@ import time
 import traceback
 
 from datetime import tzinfo, timedelta, datetime
+from rule import FormulaRule
 from utils import getch, getMatchList
 
 class CurrencyException(Exception):
@@ -149,7 +150,7 @@ class Formula:
         except Exception as e:
             raise '内容不合法：{}'.format(content)
 
-        if len(self.currencies) is 0 or len(self.operators) is 0:
+        if len(self.currencies) is 0:
             raise CurrencyException('输入错误：{}'.format(content))
 
         if len(self.currencies) != len(self.operators) + 1:
@@ -175,6 +176,82 @@ class Formula:
         return result
 
 class CurrencyLooper:
+
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        pass
+
+    def run(self, rulefile):
+
+        def clearScreen():
+            os.system('clear')
+
+        formulaRule = FormulaRule(rulefile)
+
+        while True:
+
+            rule = formulaRule.createFormula()
+
+            formula = Formula.parse(rule)
+            print '\n\n', formula
+
+            print '按回车键继续，按其它键跳过'
+
+            if '\r' == getch():
+
+                clearScreen()
+
+                print '\n\n', formula
+
+                msg = '\n\n请输入答案：'
+
+                for i in range(3):
+
+                    answer = raw_input(msg)
+                    correct = False
+
+                    try:
+
+                        if eval('{} == {}'.format(rule, answer)):
+                            correct = True
+                    except Exception as e:
+                        pass
+
+                    try:
+                        answer = Formula.parse(answer)
+                        answer = answer.getResult()
+                    except CurrencyException as e:
+                        pass
+
+                    print '\n\n', formula, '=', answer
+
+                    if correct:
+                        print '\n\n回答正确！恭喜你！'
+                        break
+                    else:
+                        print '\n\n请再想想？'
+
+                else:
+
+                    print '\n\n按任意键看答案'
+                    getch()
+
+                    print '\n\n', formula, '=', formula.getResult()
+
+                    print '按任意键继续'
+                    getch()
+
+                    continue
+
+                print '按任意键继续'
+                getch()
+
+            clearScreen()
+
+            if not formulaRule.forward():
+                break
 
     @staticmethod
     def autorun():

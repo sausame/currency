@@ -10,7 +10,7 @@ from currency import CurrencyLooper
 from datetime import tzinfo, timedelta, datetime
 from utils import getch, getProperty, reprDict, OutputPath, ThreadWritableObject
 
-def run(configfile, name):
+def run(configfile, name, filename):
 
     OutputPath.init(configFile)
 
@@ -21,7 +21,10 @@ def run(configfile, name):
     #sys.errout = thread # XXX: Actually, it does NOT work
 
     try:
-        CurrencyLooper.autorun()
+        looper = CurrencyLooper()
+        looper.run(filename)
+
+        #CurrencyLooper.autorun()
 
     except KeyboardInterrupt:
         pass
@@ -37,8 +40,8 @@ if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    if len(sys.argv) < 2:
-        print 'Usage:\n\t', sys.argv[0], 'config-file\n'
+    if len(sys.argv) < 3:
+        print 'Usage:\n\t', sys.argv[0], 'config-file filename\n'
         exit()
 
     os.environ['TZ'] = 'Asia/Shanghai'
@@ -47,6 +50,7 @@ if __name__ == '__main__':
     name = os.path.basename(sys.argv[0])[:-3] # Remove ".py"
 
     configFile = sys.argv[1]
+    filename = sys.argv[2]
 
-    run(configFile, name)
+    run(configFile, name, filename)
 
