@@ -39,9 +39,20 @@ def chmod(path, mode=stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_
     if os.path.exists(path):
         os.chmod(path, mode)
 
-def getchar():
-    print 'Please press return key to continue'
-    sys.stdin.read(1)
+try:
+    # Win32
+    from msvcrt import getch
+except ImportError:
+    # UNIX
+    def getch():
+        import tty, termios
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            return sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 def atoi(src):
     if isinstance(src, int):

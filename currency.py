@@ -19,6 +19,13 @@ import time
 import traceback
 
 from datetime import tzinfo, timedelta, datetime
+from utils import getch
+
+class CurrencyException(Exception):
+
+    def __init___(self, dErrorArguments):
+        Exception.__init__(self, dErrArguments)
+        self.dErrorArguments = dErrorArguements
 
 class Operator:
 
@@ -141,7 +148,7 @@ class Formula:
                 value = func(match.group())
 
                 if value is None:
-                    raise Exception('内容不合法：{}'.format(value))
+                    raise CurrencyException('内容不合法：{}'.format(value))
 
                 values.append(value)
 
@@ -153,8 +160,11 @@ class Formula:
         # Operators
         self.operators = toList(r'[\+\-]', content, str2operator)
 
+        if len(self.currencies) is 0 or len(self.operators) is 0:
+            raise CurrencyException('输入错误：{}'.format(content))
+
         if len(self.currencies) != len(self.operators) + 1:
-            raise Exception('操作符和货币不匹配：{}'.format(content))
+            raise CurrencyException('操作符和货币不匹配：{}'.format(content))
 
     @staticmethod
     def parse(content):
@@ -174,4 +184,42 @@ class Formula:
                 result._minus(self.currencies[i+1])
 
         return result
+
+class CurrencyLooper:
+
+    @staticmethod
+    def autorun():
+
+        def clearScreen():
+            os.system('clear')
+
+        while True:
+
+            msg = '例如：1元1角 + 2元2角 - 3元, 输入为：1.1 + 2.2 - 3\n请输入式子：\n'
+            content = raw_input(msg)
+
+            content.strip()
+
+            if len(content) is 0:
+                break
+
+            try:
+                clearScreen()
+
+                formula = Formula.parse(content)
+                print formula
+
+                print '\n\n按任意键看答案'
+                getch()
+
+                result = formula.getResult()
+                print '\n\n', result
+
+            except CurrencyException as e:
+                print e
+
+            print '按任意键继续'
+            getch()
+
+            clearScreen()
 
