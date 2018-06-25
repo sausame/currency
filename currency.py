@@ -19,7 +19,7 @@ import time
 import traceback
 
 from datetime import tzinfo, timedelta, datetime
-from utils import getch
+from utils import getch, getMatchList
 
 class CurrencyException(Exception):
 
@@ -138,27 +138,16 @@ class Formula:
 
             return None
 
-        def toList(regex, content, func):
+        try:
 
-            matches = re.finditer(regex, content, re.MULTILINE)
+            # Currencies
+            self.currencies = getMatchList(r'\s*\d+(\.)*\d*', content, str2currency)
 
-            values = list()
+            # Operators
+            self.operators = getMatchList(r'[\+\-]', content, str2operator)
 
-            for match in matches:
-                value = func(match.group())
-
-                if value is None:
-                    raise CurrencyException('内容不合法：{}'.format(value))
-
-                values.append(value)
-
-            return values
-
-        # Currencies
-        self.currencies = toList(r'\s*\d+(\.)*\d*', content, str2currency)
-
-        # Operators
-        self.operators = toList(r'[\+\-]', content, str2operator)
+        except Exception as e:
+            raise '内容不合法：{}'.format(content)
 
         if len(self.currencies) is 0 or len(self.operators) is 0:
             raise CurrencyException('输入错误：{}'.format(content))

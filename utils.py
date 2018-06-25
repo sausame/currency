@@ -191,6 +191,26 @@ def getMatchString(content, pattern):
 
     return matches[0]
 
+def getMatchList(regex, content, func=None):
+
+    matches = re.finditer(regex, content, re.MULTILINE)
+
+    values = list()
+
+    for match in matches:
+
+        if func is not None:
+            value = func(match.group())
+        else:
+            value = match.group()
+
+        if value is None:
+            raise Exception('Invalid {}'.format(value))
+
+        values.append(value)
+
+    return values
+
 def dump(obj):
 
     def dumpObj(obj):
