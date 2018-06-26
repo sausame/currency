@@ -194,16 +194,15 @@ class CurrencyLooper:
 
             rule = formulaRule.createFormula()
 
-            formula = Formula.parse(rule)
-            print '\n\n', formula
-
-            print '按回车键继续，按其它键跳过'
+            clearScreen()
+            print '\n\n第', (formulaRule.getIndex() + 1), '关，按回车键继续，按其它键跳过。'
 
             if '\r' == getch():
 
                 clearScreen()
 
-                print '\n\n', formula
+                formula = Formula.parse(rule)
+                print '\n\n第', (formulaRule.getIndex() + 1), '关\n\n', formula, '= ?'
 
                 msg = '\n\n请输入答案：'
 
@@ -230,17 +229,17 @@ class CurrencyLooper:
                     print '\n\n', formula, '=', answer
 
                     if correct:
-                        print '\n\n回答正确！恭喜你！'
+                        print '\n\n回答正确！恭喜你通过第', (formulaRule.getIndex() + 1), '关！'
                         break
 
                 else:
 
-                    print '\n\n按任意键看答案'
+                    print '\n\n可能你不太理解，按任意键看答案吧。'
                     getch()
 
                     print '\n\n', formula, '=', formula.getResult()
 
-                    print '按任意键继续'
+                    print '\n\n按任意键再来一次吧。'
                     getch()
 
                     continue
