@@ -209,11 +209,13 @@ class CurrencyLooper:
 
                 for i in range(3):
 
+                    if i is not 0:
+                        print '\n\n请再想想？'
+
                     answer = raw_input(msg)
                     correct = False
 
                     try:
-
                         if eval('{} == {}'.format(rule, answer)):
                             correct = True
                     except Exception as e:
@@ -230,8 +232,6 @@ class CurrencyLooper:
                     if correct:
                         print '\n\n回答正确！恭喜你！'
                         break
-                    else:
-                        print '\n\n请再想想？'
 
                 else:
 
