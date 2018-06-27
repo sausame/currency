@@ -215,7 +215,9 @@ class CurrencyLooper:
                     correct = False
 
                     try:
-                        if eval('{} == {}'.format(rule, answer)):
+                        condition = '{0} - {1} < 0.01 or {1} - {0} < 0.01'.format(rule, answer)
+
+                        if eval(condition):
                             correct = True
                     except Exception as e:
                         pass
