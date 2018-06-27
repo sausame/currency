@@ -21,7 +21,7 @@ def run(configfile, name, filename):
     #sys.errout = thread # XXX: Actually, it does NOT work
 
     try:
-        looper = CurrencyLooper()
+        looper = CurrencyLooper(configFile)
         looper.run(filename)
 
         #CurrencyLooper.autorun()

@@ -20,7 +20,7 @@ class Speech:
 
     def voiceOut(self, stringContent):
 
-        result = self.aipSpeech.synthesis(content, 'zh', 1, {'vol': 15, 'per': 0})
+        result = self.aipSpeech.synthesis(stringContent, 'zh', 1, {'vol': 15, 'per': 0})
 
         if not isinstance(result, dict):
 
