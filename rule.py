@@ -56,6 +56,9 @@ class FormulaRule:
     def getIndex(self):
         return self.index
 
+    def getSize(self):
+        return len(self.rules)
+
     def set(self, index):
 
         if index >= 0 and index < len(self.rules):

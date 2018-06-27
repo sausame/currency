@@ -1,24 +1,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# Utils
-import binascii
-import cStringIO
-import json
 import os
-import pprint
-import random
-import re
-import requests
-import stat
-import string
-import sys
-import subprocess
-import threading
-import time
 import traceback
 
-from datetime import tzinfo, timedelta, datetime
 from rule import FormulaRule
 from utils import getch, getMatchList
 
@@ -195,23 +180,27 @@ class CurrencyLooper:
             rule = formulaRule.createFormula()
 
             clearScreen()
-            print '\n\n第', (formulaRule.getIndex() + 1), '关，按回车键继续，按其它键跳过。'
+            print('\n\n第', (formulaRule.getIndex() + 1), '关，按回车键继续，按其它键跳过。')
 
             if '\r' == getch():
 
                 clearScreen()
 
                 formula = Formula.parse(rule)
-                print '\n\n第', (formulaRule.getIndex() + 1), '关\n\n', formula, '= ?'
+                print('\n\n第', (formulaRule.getIndex() + 1), '关\n\n', formula, '= ?')
 
                 msg = '\n\n请输入答案：'
 
                 for i in range(3):
 
                     if i is not 0:
-                        print '\n\n请再想想？'
+                        print('\n\n请再想想？')
 
-                    answer = raw_input(msg)
+                    try:
+                        answer = raw_input(msg)
+                    except NameError:
+                        answer = input(msg)
+
                     correct = False
 
                     try:
@@ -228,30 +217,31 @@ class CurrencyLooper:
                     except CurrencyException as e:
                         pass
 
-                    print '\n\n', formula, '=', answer
+                    print('\n\n', formula, '=', answer)
 
                     if correct:
-                        print '\n\n回答正确！恭喜你通过第', (formulaRule.getIndex() + 1), '关！'
+                        print('\n\n回答正确！恭喜你通过第', (formulaRule.getIndex() + 1), '关！')
                         break
 
                 else:
 
-                    print '\n\n可能你不太理解，按任意键看答案吧。'
+                    print('\n\n可能你不太理解，按任意键看答案吧。')
                     getch()
 
-                    print '\n\n', formula, '=', formula.getResult()
+                    print('\n\n', formula, '=', formula.getResult())
 
-                    print '\n\n按任意键再来一次吧。'
+                    print('\n\n按任意键再来一次吧。')
                     getch()
 
                     continue
 
-                print '按任意键继续'
+                print('按任意键继续')
                 getch()
 
             clearScreen()
 
             if not formulaRule.forward():
+                print('\n\n恭喜你通过全部', formulaRule.getSize(), '关！')
                 break
 
     @staticmethod
@@ -263,7 +253,10 @@ class CurrencyLooper:
         while True:
 
             msg = '例如：1元1角 + 2元2角 - 3元, 输入为：1.1 + 2.2 - 3\n请输入式子：\n'
-            content = raw_input(msg)
+            try:
+                content = raw_input(msg)
+            except NameError:
+                content = input(msg)
 
             content.strip()
 
@@ -274,18 +267,18 @@ class CurrencyLooper:
                 clearScreen()
 
                 formula = Formula.parse(content)
-                print formula
+                print(formula)
 
-                print '\n\n按任意键看答案'
+                print('\n\n按任意键看答案')
                 getch()
 
                 result = formula.getResult()
-                print '\n\n', result
+                print('\n\n', result)
 
             except CurrencyException as e:
-                print e
+                print(e)
 
-            print '按任意键继续'
+            print('按任意键继续')
             getch()
 
             clearScreen()

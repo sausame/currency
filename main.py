@@ -28,8 +28,8 @@ def run(configfile, name, filename):
 
     except KeyboardInterrupt:
         pass
-    except Exception, e:
-        print 'Error occurs at', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        print('Error occurs at', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         traceback.print_exc(file=sys.stdout)
 
     thread.quit()
@@ -37,11 +37,14 @@ def run(configfile, name, filename):
 
 if __name__ == '__main__':
 
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    try:
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
+    except:
+        pass
 
     if len(sys.argv) < 3:
-        print 'Usage:\n\t', sys.argv[0], 'config-file filename\n'
+        print('Usage:\n\t', sys.argv[0], 'config-file filename\n')
         exit()
 
     os.environ['TZ'] = 'Asia/Shanghai'

@@ -3,7 +3,6 @@
 
 # Utils
 import binascii
-import cStringIO
 import json
 import os
 import pprint
@@ -76,8 +75,8 @@ def toVisibleAscll(src):
     if unicode != type(src):
         try:
             src = unicode(src, errors='ignore')
-        except TypeError, e:
-            print 'Unable to translate {!r} of type {}'.format(src, type(src)), ':', e
+        except TypeError as e:
+            print('Unable to translate {!r} of type {}'.format(src, type(src)), ':', e)
 
     dest = ''
 
@@ -227,52 +226,10 @@ def dump(obj):
         for subObj in obj:
             dump(subObj)
     else:
-        print dumpObj(obj)
+        print(dumpObj(obj))
 
 def reprDict(data):
     return json.dumps(data, ensure_ascii=False, indent=4, sort_keys=True)
-
-def printDict(obj):
-    UniPrinter().pprint(obj)
-
-class UniPrinter(pprint.PrettyPrinter):
-
-    def format(self, obj, context, maxlevels, level):
-
-        if isinstance(obj, unicode):
-
-            out = cStringIO.StringIO()
-            out.write('u"')
-
-            for c in obj:
-                if ord(c) < 32 or c in u'"\\':
-                    out.write('\\x%.2x' % ord(c))
-                else:
-                    out.write(c.encode("utf-8"))
-
-            out.write('"''"')
-
-            # result, readable, recursive
-            return out.getvalue(), True, False
-
-        if isinstance(obj, str):
-
-            out = cStringIO.StringIO()
-            out.write('"')
-
-            for c in obj:
-                if ord(c) < 32 or c in '"\\':
-                    out.write('\\x%.2x' % ord(c))
-                else:
-                    out.write(c)
-
-            out.write('"')
-
-            # result, readable, recursive
-            return out.getvalue(), True, False
-
-        return pprint.PrettyPrinter.format(self, obj,
-            context, maxlevels, level)
 
 # XXX: Gentlemen should not force ladies to quit but ask them to quit.
 class LadyThread(threading.Thread):
@@ -298,7 +255,7 @@ class LadyThread(threading.Thread):
 
             self.mutex.release()
 
-        print 'Quit'
+        print('Quit')
 
     def runOnce(self):
         raise TypeError('No implement')
@@ -311,7 +268,7 @@ class LadyThread(threading.Thread):
 
     def quit(self):
 
-        print 'Stopping ...'
+        print('Stopping ...')
         self.running = False
 
 class AutoReleaseThread(threading.Thread):
@@ -372,11 +329,11 @@ class AutoReleaseThread(threading.Thread):
         else:
             self.release()
 
-        print 'Quit'
+        print('Quit')
 
     def quit(self):
 
-        print 'Stopping ...'
+        print('Stopping ...')
         self.running = False
 
 class OutputPath:
@@ -473,7 +430,7 @@ class ThreadWritableObject(threading.Thread):
 
     def quit(self):
 
-        print 'Quit ...'
+        print('Quit ...')
         self.running = False
 
 def removeOverdueFiles(pathname, seconds, suffix=None):
