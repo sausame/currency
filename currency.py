@@ -50,6 +50,9 @@ class Currency:
 
         return u'0元'
 
+    def clone(self):
+        return Currency(self.yuan, self.jiao)
+
     def _add(self, other):
 
         self.yuan += other.yuan
@@ -91,6 +94,7 @@ class Currency:
 class Formula:
 
     def __init__(self, content):
+
         self._parse(content)
 
     def __repr__(self):
@@ -148,7 +152,7 @@ class Formula:
 
     def getResult(self):
 
-        result = self.currencies[0]
+        result = self.currencies[0].clone()
 
         for i in range(len(self.operators)):
 
