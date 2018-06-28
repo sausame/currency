@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import json
 import sys
 import time
 
@@ -109,10 +110,28 @@ class Speech:
     def getVoiceText(self):
 
         # XXX record from micphone
-        filename = None
+        path = OutputPath.getDataPath('input', 'pcm')
 
-        with open(filename, 'rb') as fp:
-            return self.aipSpeech.asr(fp.read())
+        record(path)
+
+        '''
+        cmd = 'aplay -r 16000 -f S16_LE -c 1 {}'.format(path)
+        runCommand(cmd)
+        '''
+
+        with open(path, 'rb') as fp:
+
+            obj = self.aipSpeech.asr(fp.read())
+
+            error = obj.pop('err_no')
+
+            if error is 0:
+                res = obj.pop('result')
+
+                if isinstance(res, list) and len(res) > 0:
+                    return(res[0])
+            else:
+                print(obj.pop('err_msg'))
 
         return None
 
