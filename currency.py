@@ -180,10 +180,18 @@ class CurrencyLooper:
 
         self.speech.voiceOut(content);
 
-    def run(self, rulefile):
+    def runWithVoice(self, rulefile):
 
         def clearScreen():
             os.system('clear')
+
+        self.outputLine('请说出你的名字吧');
+        name = self.speech.getVoiceText()
+
+        if name is None:
+            name = ''
+
+        self.outputLine('欢迎你！{}'.format(name));
 
         formulaRule = FormulaRule(rulefile)
 
@@ -192,28 +200,34 @@ class CurrencyLooper:
             rule = formulaRule.createFormula()
 
             clearScreen()
-            self.outputLine(u'第{}关，按回车键继续，按其它键跳过。'.format(formulaRule.getIndex() + 1))
+            self.outputLine(u'当前第{}关，请说出继续、跳过或者退出。'.format(formulaRule.getIndex() + 1))
 
-            if '\r' == getch():
+            text = self.speech.getVoiceText()
+
+            if text is not None and u'退出' in text:
+                self.outputLine('已退出')
+                break
+
+            if text is None or u'跳过' not in text:
 
                 clearScreen()
 
                 formula = Formula.parse(rule)
-                self.outputLine(u'第{}关\n\n{} = ?'.format(formulaRule.getIndex() + 1, formula))
+                self.outputLine(u'第{}关题目如下：'.format(formulaRule.getIndex() + 1))
 
-                msg = '请输入答案：'
+                msg = '{} = 多少？'.format(formula)
 
                 for i in range(3):
 
                     if i is not 0:
-                        self.outputLine('请再想想？')
+                        self.outputLine('请再想想吧？')
 
                     self.outputLine(msg)
 
-                    try:
-                        answer = raw_input()
-                    except NameError:
-                        answer = input()
+                    answer = self.speech.getVoiceText()
+
+                    if answer is None:
+                        continue
 
                     correct = False
 
@@ -238,24 +252,92 @@ class CurrencyLooper:
                         break
 
                 else:
+                    self.outputLine('可能你不太理解，正确答案是：{} = {}。'.format(formula, formula.getResult()))
+                    continue
 
-                    self.outputLine('可能你不太理解，按任意键看答案吧。')
+            else:
+                self.outputLine(u'已跳过第{}关。'.format(formulaRule.getIndex() + 1))
+
+            clearScreen()
+
+            if not formulaRule.forward():
+                self.outputLine('恭喜你！{}，通过全部{}关！'.format(name, formulaRule.getSize()))
+                break
+
+    def run(self, rulefile):
+
+        def clearScreen():
+            os.system('clear')
+
+        formulaRule = FormulaRule(rulefile)
+
+        while True:
+
+            rule = formulaRule.createFormula()
+
+            clearScreen()
+            print(u'第{}关，按回车键继续，按其它键跳过。'.format(formulaRule.getIndex() + 1))
+
+            if '\r' == getch():
+
+                clearScreen()
+
+                formula = Formula.parse(rule)
+                print(u'第{}关\n\n{} = ?'.format(formulaRule.getIndex() + 1, formula))
+
+                msg = '请输入答案：'
+
+                for i in range(3):
+
+                    if i is not 0:
+                        print('请再想想？')
+
+                    try:
+                        answer = raw_input(msg)
+                    except NameError:
+                        answer = input(msg)
+
+                    correct = False
+
+                    try:
+                        condition = '{0} - {1} < 0.01 or {1} - {0} < 0.01'.format(rule, answer)
+
+                        if eval(condition):
+                            correct = True
+                    except Exception as e:
+                        pass
+
+                    try:
+                        answer = Formula.parse(answer)
+                        answer = answer.getResult()
+                    except CurrencyException as e:
+                        pass
+
+                    print('{} = {}'.format(formula, answer))
+
+                    if correct:
+                        print('回答正确！恭喜你通过第{}关！'.format(formulaRule.getIndex() + 1))
+                        break
+
+                else:
+
+                    print('可能你不太理解，按任意键看答案吧。')
                     getch()
 
-                    self.outputLine('正确答案是：{} = {}'.format(formula, formula.getResult()))
+                    print('正确答案是：{} = {}'.format(formula, formula.getResult()))
 
-                    self.outputLine('按任意键再来一次吧。')
+                    print('按任意键再来一次吧。')
                     getch()
 
                     continue
 
-                self.outputLine('按任意键继续')
+                print('按任意键继续')
                 getch()
 
             clearScreen()
 
             if not formulaRule.forward():
-                self.outputLine('恭喜你通过全部{}关！'.format(formulaRule.getSize()))
+                print('恭喜你通过全部{}关！'.format(formulaRule.getSize()))
                 break
 
     @staticmethod
