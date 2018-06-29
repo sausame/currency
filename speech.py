@@ -5,7 +5,7 @@ import json
 import sys
 import time
 
-from aip import AipSpeech
+from aip import AipSpeech, AipNlp
 from utils import getProperty, runCommand, OutputPath
 
 try:
@@ -81,7 +81,23 @@ except:
 
             p.terminate()
 
-class Speech:
+class BaiduAiP:
+
+    def __init__(self, configFile):
+
+        appId = getProperty(configFile, 'baidu-aip-app-id')
+        apiKey = getProperty(configFile, 'baidu-aip-api-key')
+        secretKey = getProperty(configFile, 'baidu-aip-secret-key')
+
+        self.init(appId, apiKey, secretKey)
+
+    def init(self, appId, apiKey, secretKey):
+        pass
+
+class Speech(BaiduAiP):
+
+    def init(self, appId, apiKey, secretKey):
+        self.aipSpeech = AipSpeech(appId, apiKey, secretKey)
 
     def __init__(self, configFile):
 
@@ -134,4 +150,72 @@ class Speech:
                 print(obj.pop('err_msg'))
 
         return None
+
+class Nlp(BaiduAiP):
+
+    def init(self, appId, apiKey, secretKey):
+        self.aipNlp = AipNlp(appId, apiKey, secretKey)
+
+    def getItems(self, text):
+
+        obj = self.aipNlp.lexer(text);
+
+        if 'error_code' not in obj:
+            items = obj.pop('items')
+
+            if isinstance(items, list) and len(items) > 0:
+                return items
+        else:
+            print('Error:', obj.pop('error_code'), ',', obj.pop('error_msg'))
+
+        return None
+
+    def getPersons(self, text):
+
+        items = self.getItems(text);
+
+        if items is None:
+            return None
+
+        persons = list()
+
+        for item in items:
+
+            ne = item.pop('ne')
+
+            if 'PER' == ne or ('' == ne and 'nr' == item.pop('pos')):
+                persons.append(item.pop('item'))
+
+        if len(persons) is 0:
+            return None
+
+        return persons
+
+    def getNumbers(self, text):
+
+        # XXX: Sometimes, the last number will be not recognized, so append a full stop at the end.
+        # That should be removed in future.
+        text = '{}.'.format(text)
+
+        items = self.getItems(text);
+
+        if items is None:
+            return None
+
+        numbers = list()
+
+        for item in items:
+
+            if '' != item.pop('ne'):
+                continue
+
+            if 'm' != item.pop('pos'):
+                continue
+
+            numbers.append(item.pop('item'))
+
+        if len(numbers) is 0:
+            return None
+
+        return numbers
 
