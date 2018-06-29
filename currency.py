@@ -2,11 +2,13 @@
 # -*- coding:utf-8 -*-
 
 import os
+import re
 import traceback
 
+from numeric import Numeric
+from speech import Nlp, Speech
 from rule import FormulaRule
 from utils import getch, getMatchList
-from speech import Speech
 
 class CurrencyException(Exception):
 
@@ -21,20 +23,10 @@ class Operator:
 
 class Currency:
 
-    def __init__(self, yuan=0, jiao=0, currency=None):
+    def __init__(self, yuan=0, jiao=0):
 
         self.yuan = yuan
         self.jiao = jiao
-
-        if currency is not None:
-
-            pos = currency.find('.')
-
-            if pos >= 0:
-                self.yuan = int(currency[:pos])
-                self.jiao = int(currency[pos+1:])
-            else:
-                self.yuan = int(currency)
 
     def __repr__(self):
 
@@ -52,6 +44,67 @@ class Currency:
 
     def clone(self):
         return Currency(self.yuan, self.jiao)
+
+    @staticmethod
+    def createFromCurrency(currency):
+
+        if currency is None:
+            return None
+
+        pos = currency.find('.')
+
+        if pos >= 0:
+            yuan = int(currency[:pos])
+            jiao = int(currency[pos+1:])
+        else:
+            yuan = int(currency)
+            jiao = 0
+
+        return Currency(yuan, jiao)
+
+    def toCurrency(self):
+
+        if self.jiao is 0:
+            return '{}'.format(self.yuan)
+
+        return '{}.{}'.format(self.yuan, self.jiao)
+
+    @staticmethod
+    def createFromReadableString(items):
+
+        if items is None:
+            return None
+
+        yuan = 0
+        jiao = 0
+        cent = 0
+
+        found = False
+
+        for item in items:
+
+            try:
+                num = int(item[:-1])
+            except ValueError:
+                continue
+
+            unit = item[-1]
+
+            if '元' == unit:
+                yuan = num
+            elif '角' == unit:
+                jiao = num
+            elif '分' == unit:
+                cent = num
+            else:
+                continue
+
+            found = True
+
+        if found:
+            return Currency(yuan, jiao)
+
+        return None
 
     def _add(self, other):
 
@@ -118,8 +171,8 @@ class Formula:
 
     def _parse(self, content):
 
-        def str2currency(string):
-            return Currency(currency=string)
+        def str2currency(content):
+            return Currency.createFromCurrency(content)
 
         def str2operator(string):
             if '+' == string:
@@ -170,6 +223,7 @@ class CurrencyLooper:
     def __init__(self, configFile):
 
         self.speech = Speech(configFile)
+        self.nlp = Nlp(configFile)
 
     def __repr__(self):
         pass
@@ -188,6 +242,12 @@ class CurrencyLooper:
         self.outputLine('请说出你的名字吧');
         name = self.speech.getVoiceText()
 
+        if name is not None:
+            names = self.nlp.getPersons(name)
+
+            if names is not None:
+                name = names[0]
+ 
         if name is None:
             name = ''
 
@@ -200,7 +260,7 @@ class CurrencyLooper:
             rule = formulaRule.createFormula()
 
             clearScreen()
-            self.outputLine(u'当前第{}关，请说出继续、跳过或者退出。'.format(formulaRule.getIndex() + 1))
+            self.outputLine(u'当前第{}关，如果需要跳过或者退出，请说出跳过或者退出。'.format(formulaRule.getIndex() + 1))
 
             text = self.speech.getVoiceText()
 
@@ -213,6 +273,7 @@ class CurrencyLooper:
                 clearScreen()
 
                 formula = Formula.parse(rule)
+
                 self.outputLine(u'第{}关题目如下：'.format(formulaRule.getIndex() + 1))
 
                 msg = '{} = 多少？'.format(formula)
@@ -224,10 +285,24 @@ class CurrencyLooper:
 
                     self.outputLine(msg)
 
-                    answer = self.speech.getVoiceText()
+                    text = self.speech.getVoiceText()
 
-                    if answer is None:
+                    if text is None:
                         continue
+
+                    text = Numeric.chinese2arabic(text)
+
+                    items = self.nlp.getNumbers(text)
+
+                    if items is None:
+                        continue
+
+                    result = Currency.createFromReadableString(items)
+
+                    if result is None:
+                        continue
+
+                    answer = result.toCurrency()
 
                     correct = False
 

@@ -23,8 +23,8 @@ def run(configfile, name, filename):
     try:
         looper = CurrencyLooper(configFile)
 
-        looper.run(filename)
-        #looper.runWithVoice(filename)
+        #looper.run(filename)
+        looper.runWithVoice(filename)
 
         #CurrencyLooper.autorun()
 
