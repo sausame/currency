@@ -264,11 +264,11 @@ class CurrencyLooper:
 
             text = self.speech.getVoiceText()
 
-            if text is not None and u'退出' in text:
+            if text is not None and self.nlp.isSimilar('退出', text):
                 self.outputLine('已退出')
                 break
 
-            if text is None or u'跳过' not in text:
+            if text is None or self.nlp.isSimilar('跳过', text):
 
                 clearScreen()
 

@@ -219,3 +219,19 @@ class Nlp(BaiduAiP):
 
         return numbers
 
+    def isSimilar(self, text_1, text_2, options=None):
+
+        SIMILAR_SCORE = 0.75
+
+        obj = self.aipNlp.simnet(text_1, text_2, options)
+
+        if 'error_code' not in obj:
+            score = obj.pop('score')
+
+            if score >= SIMILAR_SCORE:
+                return True
+        else:
+            print('Error:', obj.pop('error_code'), ',', obj.pop('error_msg'))
+
+        return False
+
