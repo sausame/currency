@@ -268,7 +268,7 @@ class CurrencyLooper:
                 self.outputLine('已退出')
                 break
 
-            if text is None or self.nlp.isSimilar('跳过', text):
+            if text is None or not self.nlp.isSimilar('跳过', text):
 
                 clearScreen()
 
