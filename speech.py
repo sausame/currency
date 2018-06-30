@@ -28,7 +28,7 @@ try:
         fp = open(filename, 'wb')
 
         try:
-            for loops in range(1000000 * seconds):
+            for loops in range(500000 * seconds):
 
                 # Read data from device
                 l, data = inp.read()
