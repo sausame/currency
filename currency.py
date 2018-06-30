@@ -239,7 +239,10 @@ class CurrencyLooper:
         def clearScreen():
             os.system('clear')
 
-        self.outputLine('请说出你的名字吧');
+        def str2int(content):
+            return int(content)
+
+        self.outputLine('请说出您的名字吧');
         name = self.speech.getVoiceText()
 
         if name is not None:
@@ -251,9 +254,19 @@ class CurrencyLooper:
         if name is None:
             name = ''
 
-        self.outputLine('欢迎你！{}'.format(name));
+        self.outputLine('欢迎您！{}'.format(name));
 
         formulaRule = FormulaRule(rulefile)
+
+        self.outputLine('总共是{}关，您想从第几关开始？'.format(formulaRule.getSize()))
+
+        text = self.speech.getVoiceText()
+
+        if text is not None:
+            text = Numeric.chinese2arabic(text)
+            numbers = getMatchList(r'\d+', text, str2int)
+            if len(numbers) > 0:
+                formulaRule.set(numbers[0] - 1)
 
         while True:
 
@@ -323,11 +336,11 @@ class CurrencyLooper:
                     self.outputLine('{} = {}'.format(formula, answer))
 
                     if correct:
-                        self.outputLine('回答正确！恭喜你通过第{}关！'.format(formulaRule.getIndex() + 1))
+                        self.outputLine('回答正确！恭喜您通过第{}关！'.format(formulaRule.getIndex() + 1))
                         break
 
                 else:
-                    self.outputLine('可能你不太理解，正确答案是：{} = {}。'.format(formula, formula.getResult()))
+                    self.outputLine('可能您不太理解，正确答案是：{} = {}。'.format(formula, formula.getResult()))
                     continue
 
             else:
@@ -336,7 +349,7 @@ class CurrencyLooper:
             clearScreen()
 
             if not formulaRule.forward():
-                self.outputLine('恭喜你！{}，通过全部{}关！'.format(name, formulaRule.getSize()))
+                self.outputLine('恭喜您！{}，通过全部{}关！'.format(name, formulaRule.getSize()))
                 break
 
     def run(self, rulefile):
@@ -391,12 +404,12 @@ class CurrencyLooper:
                     print('{} = {}'.format(formula, answer))
 
                     if correct:
-                        print('回答正确！恭喜你通过第{}关！'.format(formulaRule.getIndex() + 1))
+                        print('回答正确！恭喜您通过第{}关！'.format(formulaRule.getIndex() + 1))
                         break
 
                 else:
 
-                    print('可能你不太理解，按任意键看答案吧。')
+                    print('可能您不太理解，按任意键看答案吧。')
                     getch()
 
                     print('正确答案是：{} = {}'.format(formula, formula.getResult()))
@@ -412,7 +425,7 @@ class CurrencyLooper:
             clearScreen()
 
             if not formulaRule.forward():
-                print('恭喜你通过全部{}关！'.format(formulaRule.getSize()))
+                print('恭喜您通过全部{}关！'.format(formulaRule.getSize()))
                 break
 
     @staticmethod
